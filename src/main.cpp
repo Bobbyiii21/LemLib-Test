@@ -83,10 +83,38 @@ void autonomous() {
  * task, not resume it from where it left off.
  */
 void opcontrol() {
+	#define curve_factor 2
+	#define curve(x) (x * pow((abs(x)/127.0),curve_factor))
+
 	while (1)
 	{
 		pros::lcd::print(0, "Hello World");
 		pros::delay(20);
+
+		//Controller Input
+		int leftmotorInput =  master.get_analog(ANALOG_LEFT_Y) - master.get_analog(ANALOG_LEFT_X);
+		int rightmotorInput = master.get_analog(ANALOG_LEFT_Y) + master.get_analog(ANALOG_LEFT_X);
+
+		//Controller Curve
+		float leftcurve = curve(leftmotorInput);
+		float rightcurve = curve(rightmotorInput);
+
+
+		int deadzone = 5;
+
+		if (abs(leftmotorInput) < deadzone)
+		{
+			leftMotors.move(0);
+		} else {
+			leftMotors.move(leftcurve);
+		}
+
+		if (abs(rightmotorInput) < deadzone)
+		{
+			rightMotors.move(0);
+		} else {
+			rightMotors.move(rightcurve);
+		}
 		
 
 	}
